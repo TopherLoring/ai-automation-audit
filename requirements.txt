@@ -1,0 +1,5 @@
+# Minimal dependencies — pure Python preferred
+# No paid services required
+rich>=13.0.0          # nice terminal + report formatting
+jinja2>=3.1.0         # optional HTML report template
+jsonschema>=4.20.0    # basic structure validation

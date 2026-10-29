@@ -1,0 +1,88 @@
+{
+  "name": "Defective Lead Ingest (Demo)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "new-lead",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "wh-001",
+      "name": "Webhook - New Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "demo-new-lead"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.example-crm.com/v1/contacts",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"{{ $json.email }}\",\n  \"name\": \"{{ $json.name }}\",\n  \"source\": \"webhook\"\n}",
+        "options": {}
+      },
+      "id": "http-001",
+      "name": "Create CRM Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [520, 300],
+      "retryOnFail": false,
+      "maxTries": 1,
+      "onError": "stopWorkflow"
+    },
+    {
+      "parameters": {
+        "fromEmail": "leads@example.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Thanks for reaching out",
+        "emailType": "text",
+        "message": "We received your request and will be in touch shortly."
+      },
+      "id": "email-001",
+      "name": "Send Welcome Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [800, 300],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 500
+    }
+  ],
+  "connections": {
+    "Webhook - New Lead": {
+      "main": [
+        [
+          {
+            "node": "Create CRM Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create CRM Contact": {
+      "main": [
+        [
+          {
+            "node": "Send Welcome Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "demo-defective-001",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "demo-defective-lead-ingest",
+  "tags": []
+}
